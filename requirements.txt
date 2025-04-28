@@ -4,3 +4,4 @@ gradio
 yt_dlp
 pypresence
 youtube_dl
+validators
