@@ -5,3 +5,4 @@ yt_dlp
 pypresence
 youtube_dl
 validators
+matchering==2.0.6
