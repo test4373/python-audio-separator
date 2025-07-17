@@ -159,7 +159,7 @@ python -m pip install ort-nightly-gpu --index-url=https://aiinfra.pkgs.visualstu
 You can use Audio Separator via the command line, for example:
 
 ```sh
-audio-separator /path/to/your/input/audio.wav --model_filename UVR-MDX-NET-Inst_HQ_3.onnx
+audio-separator /path/to/your/input/audio.wav --model_filename model_bs_roformer_ep_317_sdr_12.9755.ckpt
 ```
 
 This command will download the specified model file, process the `audio.wav` input audio and generate two new files in the current directory, one containing vocals and one containing instrumental.
@@ -342,7 +342,7 @@ from audio_separator.separator import Separator
 separator = Separator()
 
 # Load a model
-separator.load_model(model_filename='UVR-MDX-NET-Inst_HQ_3.onnx')
+separator.load_model(model_filename='model_bs_roformer_ep_317_sdr_12.9755.ckpt')
 
 # Separate multiple audio files without reloading the model
 output_files = separator.separate(['audio1.wav', 'audio2.wav', 'audio3.wav'])
@@ -362,7 +362,7 @@ from audio_separator.separator import Separator
 separator = Separator()
 
 # Load a model
-separator.load_model(model_filename='UVR-MDX-NET-Inst_HQ_3.onnx')
+separator.load_model(model_filename='model_bs_roformer_ep_317_sdr_12.9755.ckpt')
 
 # Separate all audio files located in a folder
 output_files = separator.separate('path/to/audio_directory')
@@ -438,6 +438,12 @@ You can also rename specific stems:
 - **`vr_params`:** (Optional) VR Architecture Specific Attributes & Defaults. `Default: {"batch_size": 1, "window_size": 512, "aggression": 5, "enable_tta": False, "enable_post_process": False, "post_process_threshold": 0.2, "high_end_process": False}`
 - **`demucs_params`:** (Optional) Demucs Architecture Specific Attributes & Defaults. `Default: {"segment_size": "Default", "shifts": 2, "overlap": 0.25, "segments_enabled": True}`
 - **`mdxc_params`:** (Optional) MDXC Architecture Specific Attributes & Defaults. `Default: {"segment_size": 256, "override_model_segment_size": False, "batch_size": 1, "overlap": 8, "pitch_shift": 0}`
+
+## Remote API Usage 🌐
+
+Audio Separator includes a remote API client that allows you to connect to a deployed Audio Separator API service, enabling you to perform audio separation without running the models locally. The API uses asynchronous processing with job polling for efficient handling of separation tasks.
+
+To deploy Audio Separator as an API on modal.com and use this for remote processing, please see the detailed documentation here: [audio_separator/remote/README.md](audio_separator/remote/README.md).
 
 ## Requirements 📋
 
@@ -520,8 +526,6 @@ poetry build
 ```
 
 This will generate the distribution packages in the dist directory - but for now only @beveradb will be able to publish to PyPI.
-
-
 
 
 ## Contributing 🤝
