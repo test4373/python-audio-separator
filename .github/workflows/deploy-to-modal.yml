@@ -37,7 +37,7 @@ jobs:
         run: |
           pip install modal
           # Install dependencies needed to parse deploy_modal.py
-          pip install fastapi filetype
+          pip install fastapi filetype python-multipart
 
       - name: Deploy to Modal
         env:
