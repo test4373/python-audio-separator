@@ -109,8 +109,9 @@ image = (
     )
     .pip_install(
         [
-            # Core audio-separator with GPU support (this pulls in most dependencies from pyproject.toml)
-            "audio-separator[gpu]>=0.35.2",
+            # Core audio-separator with GPU support
+            # Always pulls the latest version from PyPI when the image is rebuilt
+            "audio-separator[gpu]",
             # FastAPI and web server dependencies for Modal API deployment
             "fastapi>=0.104.0",
             "uvicorn[standard]>=0.24.0",
