@@ -33,8 +33,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Modal CLI
-        run: pip install modal
+      - name: Install Modal CLI and dependencies
+        run: |
+          pip install modal
+          # Install dependencies needed to parse deploy_modal.py
+          pip install fastapi filetype
 
       - name: Deploy to Modal
         env:

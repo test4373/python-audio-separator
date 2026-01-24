@@ -40,8 +40,8 @@ from starlette.responses import Response as StarletteResponse, PlainTextResponse
 import filetype
 import modal
 
-# Local imports
-from audio_separator.separator import Separator
+# Note: Separator is imported inside functions to allow Modal to parse this file
+# without requiring audio_separator to be installed on the deployment machine
 
 # Constants
 DEFAULT_MODEL_NAME = "default"  # Used when no model is specified
@@ -195,6 +195,8 @@ def separate_audio_function(
     """
     Separate audio into stems using one or more models
     """
+    from audio_separator.separator import Separator
+
     if task_id is None:
         task_id = str(uuid.uuid4())
 
@@ -489,6 +491,8 @@ def list_available_models() -> dict:
     """
     List available separation models using the same approach as CLI
     """
+    from audio_separator.separator import Separator
+
     # Use the persistent model directory
     model_dir = "/models"
 
@@ -510,6 +514,8 @@ def get_simplified_models(filter_sort_by: str = None) -> dict:
     """
     Get simplified model list using the same approach as CLI --list_models
     """
+    from audio_separator.separator import Separator
+
     # Use the persistent model directory
     model_dir = "/models"
 
