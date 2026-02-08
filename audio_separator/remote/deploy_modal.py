@@ -31,6 +31,7 @@ import hashlib
 from importlib.metadata import version
 import typing
 from typing import Optional
+from urllib.parse import quote
 
 # Third-party imports
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
@@ -39,8 +40,8 @@ from starlette.responses import Response as StarletteResponse, PlainTextResponse
 import filetype
 import modal
 
-# Local imports
-from audio_separator.separator import Separator
+# Note: Separator is imported inside functions to allow Modal to parse this file
+# without requiring audio_separator to be installed on the deployment machine
 
 # Constants
 DEFAULT_MODEL_NAME = "default"  # Used when no model is specified
@@ -108,8 +109,9 @@ image = (
     )
     .pip_install(
         [
-            # Core audio-separator with GPU support (this pulls in most dependencies from pyproject.toml)
-            "audio-separator[gpu]>=0.35.2",
+            # Core audio-separator with GPU support
+            # Always pulls the latest version from PyPI when the image is rebuilt
+            "audio-separator[gpu]",
             # FastAPI and web server dependencies for Modal API deployment
             "fastapi>=0.104.0",
             "uvicorn[standard]>=0.24.0",
@@ -193,6 +195,8 @@ def separate_audio_function(
     """
     Separate audio into stems using one or more models
     """
+    from audio_separator.separator import Separator
+
     if task_id is None:
         task_id = str(uuid.uuid4())
 
@@ -487,6 +491,8 @@ def list_available_models() -> dict:
     """
     List available separation models using the same approach as CLI
     """
+    from audio_separator.separator import Separator
+
     # Use the persistent model directory
     model_dir = "/models"
 
@@ -508,6 +514,8 @@ def get_simplified_models(filter_sort_by: str = None) -> dict:
     """
     Get simplified model list using the same approach as CLI --list_models
     """
+    from audio_separator.separator import Separator
+
     # Use the persistent model directory
     model_dir = "/models"
 
@@ -712,7 +720,13 @@ async def download_file(task_id: str, file_hash: str) -> Response:
             print(f"WARNING: Could not detect MIME type for {actual_filename}, using generic type")
             content_type = "application/octet-stream"
 
-        return Response(content=file_data, media_type=content_type, headers={"Content-Disposition": f"attachment; filename={actual_filename}"})
+        # RFC 5987 encoding for Unicode filenames in Content-Disposition header
+        # Provide ASCII fallback for older clients, and UTF-8 encoded filename for modern clients
+        ascii_filename = "".join(c if ord(c) < 128 else "_" for c in actual_filename)
+        encoded_filename = quote(actual_filename, safe="")
+        content_disposition = f"attachment; filename=\"{ascii_filename}\"; filename*=UTF-8''{encoded_filename}"
+
+        return Response(content=file_data, media_type=content_type, headers={"Content-Disposition": content_disposition})
 
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail="File not found") from exc
